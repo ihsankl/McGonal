@@ -1,7 +1,54 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
+import { connect } from 'react-redux'
+import { getItems, nextItems } from '../redux/action/items'
+import { Link } from 'react-router-dom'
 
-export default class Items extends Component {
+class Items extends Component {
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            isLoading:true
+        }
+    }
+
+    componentDidMount() {
+        this.getItems()
+    }
+
+    getItems = async () => {
+        await this.props.dispatch(getItems())
+        this.setState({isLoading:this.props.items.isLoading})
+    }
+
+    nextItems = async (nextURL) => {
+        await this.props.dispatch(nextItems(nextURL))
+
+    }
+
+    prevItems = async (nextURL) => {
+        await this.props.dispatch(nextItems(nextURL))
+
+    }
+
+    jumpTo = async (nextURL, page) => {
+        const regex = /page=([\d.]*\d+)/g
+        const url = nextURL.match(regex)
+        console.log(url ? true : false)
+        console.log(nextURL)
+        if (!url) {
+            console.log(`${nextURL}page=${page}`)
+            await this.props.dispatch(nextItems(`${nextURL}page=${page}`))
+        } else {
+            const newURL = (nextURL.replace(regex, `page=${page}`))
+            console.log(newURL)
+            await this.props.dispatch(nextItems(newURL))
+        }
+
+    }
+
     render() {
+        const {isLoading} = this.state
         return (
             <span>
                 <div className="ht__bradcaump__area bg-image--18">
@@ -42,209 +89,84 @@ export default class Items extends Component {
                                 <div className="fd__tab__content tab-content" id="nav-tabContent">
 
                                     <div className="food__list__tab__content tab-pane fade show active" id="nav-all" role="tabpanel">
+                                        {/* LOOP HERE ITEMS */}
 
-                                        <div className="single__food__list d-flex wow fadeInUp">
-                                            <div className="food__list__thumb">
-                                                <a href="menu-details.html">
-                                                    <img src="images/menu-list/1.jpg" alt="list food images" />
-                                                </a>
-                                            </div>
-                                            <div className="food__list__inner d-flex align-items-center justify-content-between">
-                                                <div className="food__list__details">
-                                                    <h2><a href="menu-details.html">Spicy Beef Burger</a></h2>
-                                                    <p>Lorem ipsum dolor sit aLorem ipsum dolor sit amet, consectetu adipis cing elit, sed do eiusmod tempor incididunt ut labore et dolmagna aliqua. enim ad minim veniam, quis nomagni dolores eos qnumquam.</p>
-                                                    <div className="list__btn">
-                                                        <a className="food__btn grey--btn theme--hover" href="menu-details.html">Order Now</a>
+                                        {!this.props.items.isLoading && this.props.items.data.data ?
+                                            (this.props.items.data.data.map((v, i) => (
+                                                <div key={i} className="single__food__list d-flex wow fadeInUp">
+                                                    <div className="food__list__thumb">
+                                                        <Link to={`itemdetail/${v.id}`}>
+                                                            <img src="img/6609-3-large.jpg" className='img-fluid' alt="list food images" />
+                                                        </Link>
                                                     </div>
-                                                </div>
-                                                <div className="food__rating">
-                                                    <div className="list__food__prize">
-                                                        <span>$30</span>
-                                                    </div>
-                                                    <ul className="rating">
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li className="rating__opasity"><i className="zmdi zmdi-star"></i></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
+                                                    <div className="food__list__inner d-flex align-items-center justify-content-between">
+                                                        <div className="food__list__details">
+                                                            <h2><Link to={`itemdetail/${v.id}`}>{`${v.item}`}</Link></h2>
+                                                            <p>{(v.description).substring(0, 200)}</p>
+                                                            <div className="list__btn">
+                                                                <Link to={`itemdetail/${v.id}`} className="food__btn grey--btn theme--hover" >Order Now</Link>
+                                                            </div>
+                                                        </div>
+                                                        <div className="food__rating">
+                                                            <div className="list__food__prize">
+                                                                <span>{`${v.price}`}</span>
+                                                            </div>
 
-                                        <div className="single__food__list d-flex wow fadeInUp">
-                                            <div className="food__list__thumb">
-                                                <a href="menu-details.html">
-                                                    <img src="images/menu-list/2.jpg" alt="list food images" />
-                                                </a>
-                                            </div>
-                                            <div className="food__list__inner d-flex align-items-center justify-content-between">
-                                                <div className="food__list__details">
-                                                    <h2><a href="menu-details.html">Spicy Chily Chicken</a></h2>
-                                                    <p>Lorem ipsum dolor sit aLorem ipsum dolor sit amet, consectetu adipis cing elit, sed do eiusmod tempor incididunt ut labore et dolmagna aliqua. enim ad minim veniam, quis nomagni dolores eos qnumquam.</p>
-                                                    <div className="list__btn">
-                                                        <a className="food__btn grey--btn theme--hover" href="menu-details.html">Order Now</a>
-                                                    </div>
-                                                </div>
-                                                <div className="food__rating">
-                                                    <div className="list__food__prize">
-                                                        <span>$30</span>
-                                                    </div>
-                                                    <ul className="rating">
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li className="rating__opasity"><i className="zmdi zmdi-star"></i></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
+                                                            <ul className="rating">
+                                                                {/* HOW TO IMPLEMENT RATING??? */}
+                                                                {
+                                                                    Array((Math.round(v.total_ratings))).fill(
+                                                                        <li><i className="zmdi zmdi-star"></i></li>
+                                                                    )
+                                                                }
+                                                                {
+                                                                    Array(5 - (Math.round(v.total_ratings))).fill(
+                                                                        <li className="rating__opasity"><i className="zmdi zmdi-star"></i></li>
+                                                                    )
+                                                                }
 
-                                        <div className="single__food__list d-flex wow fadeInUp">
-                                            <div className="food__list__thumb">
-                                                <a href="menu-details.html">
-                                                    <img src="images/menu-list/3.jpg" alt="list food images" />
-                                                </a>
-                                            </div>
-                                            <div className="food__list__inner d-flex align-items-center justify-content-between">
-                                                <div className="food__list__details">
-                                                    <h2><a href="menu-details.html">Mixed Fruit Lassi</a></h2>
-                                                    <p>Lorem ipsum dolor sit aLorem ipsum dolor sit amet, consectetu adipis cing elit, sed do eiusmod tempor incididunt ut labore et dolmagna aliqua. enim ad minim veniam, quis nomagni dolores eos qnumquam.</p>
-                                                    <div className="list__btn">
-                                                        <a className="food__btn grey--btn theme--hover" href="menu-details.html">Order Now</a>
+                                                                {/* RATING ENDS HERE */}
+                                                            </ul>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div className="food__rating">
-                                                    <div className="list__food__prize">
-                                                        <span>$30</span>
-                                                    </div>
-                                                    <ul className="rating">
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li className="rating__opasity"><i className="zmdi zmdi-star"></i></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <div className="single__food__list d-flex wow fadeInUp">
-                                            <div className="food__list__thumb">
-                                                <a href="menu-details.html">
-                                                    <img src="images/menu-list/4.jpg" alt="list food images" />
-                                                </a>
-                                            </div>
-                                            <div className="food__list__inner d-flex align-items-center justify-content-between">
-                                                <div className="food__list__details">
-                                                    <h2><a href="menu-details.html">Mixed Fruit Lassi</a></h2>
-                                                    <p>Lorem ipsum dolor sit aLorem ipsum dolor sit amet, consectetu adipis cing elit, sed do eiusmod tempor incididunt ut labore et dolmagna aliqua. enim ad minim veniam, quis nomagni dolores eos qnumquam.</p>
-                                                    <div className="list__btn">
-                                                        <a className="food__btn grey--btn theme--hover" href="menu-details.html">Order Now</a>
-                                                    </div>
-                                                </div>
-                                                <div className="food__rating">
-                                                    <div className="list__food__prize">
-                                                        <span>$30</span>
-                                                    </div>
-                                                    <ul className="rating">
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li className="rating__opasity"><i className="zmdi zmdi-star"></i></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
+                                            ))
 
-                                        <div className="single__food__list d-flex wow fadeInUp">
-                                            <div className="food__list__thumb">
-                                                <a href="menu-details.html">
-                                                    <img src="images/menu-list/5.jpg" alt="list food images" />
-                                                </a>
-                                            </div>
-                                            <div className="food__list__inner d-flex align-items-center justify-content-between">
-                                                <div className="food__list__details">
-                                                    <h2><a href="menu-details.html">Mixed Fruit Lassi</a></h2>
-                                                    <p>Lorem ipsum dolor sit aLorem ipsum dolor sit amet, consectetu adipis cing elit, sed do eiusmod tempor incididunt ut labore et dolmagna aliqua. enim ad minim veniam, quis nomagni dolores eos qnumquam.</p>
-                                                    <div className="list__btn">
-                                                        <a className="food__btn grey--btn theme--hover" href="menu-details.html">Order Now</a>
-                                                    </div>
-                                                </div>
-                                                <div className="food__rating">
-                                                    <div className="list__food__prize">
-                                                        <span>$30</span>
-                                                    </div>
-                                                    <ul className="rating">
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li className="rating__opasity"><i className="zmdi zmdi-star"></i></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
 
-                                        <div className="single__food__list d-flex wow fadeInUp">
-                                            <div className="food__list__thumb">
-                                                <a href="menu-details.html">
-                                                    <img src="images/menu-list/6.jpg" alt="list food images" />
-                                                </a>
-                                            </div>
-                                            <div className="food__list__inner d-flex align-items-center justify-content-between">
-                                                <div className="food__list__details">
-                                                    <h2><a href="menu-details.html">Mixed Fruit Lassi</a></h2>
-                                                    <p>Lorem ipsum dolor sit aLorem ipsum dolor sit amet, consectetu adipis cing elit, sed do eiusmod tempor incididunt ut labore et dolmagna aliqua. enim ad minim veniam, quis nomagni dolores eos qnumquam.</p>
-                                                    <div className="list__btn">
-                                                        <a className="food__btn grey--btn theme--hover" href="menu-details.html">Order Now</a>
+                                            ) : (
+                                                <div className="single__food__list d-flex wow fadeInUp">
+                                                    <div className="food__list__thumb">
+                                                        <a href="menu-details.html">
+                                                            <img src="images/menu-list/1.jpg" alt="list food images" />
+                                                        </a>
+                                                    </div>
+                                                    <div className="food__list__inner d-flex align-items-center justify-content-between">
+                                                        <div className="food__list__details">
+                                                            <h2><a href="menu-details.html">NO DATA GUYS</a></h2>
+                                                            <p>Lorem ipsum dolor sit aLorem ipsum dolor sit amet, consectetu adipis cing elit, sed do eiusmod tempor incididunt ut labore et dolmagna aliqua. enim ad minim veniam, quis nomagni dolores eos qnumquam.</p>
+                                                            <div className="list__btn">
+                                                                <a className="food__btn grey--btn theme--hover" href="menu-details.html">Order Now</a>
+                                                            </div>
+                                                        </div>
+                                                        <div className="food__rating">
+                                                            <div className="list__food__prize">
+                                                                <span>$30</span>
+                                                            </div>
+                                                            <ul className="rating">
+                                                                <li><i className="zmdi zmdi-star"></i></li>
+                                                                <li><i className="zmdi zmdi-star"></i></li>
+                                                                <li><i className="zmdi zmdi-star"></i></li>
+                                                                <li><i className="zmdi zmdi-star"></i></li>
+                                                                <li className="rating__opasity"><i className="zmdi zmdi-star"></i></li>
+                                                            </ul>
+                                                        </div>
                                                     </div>
                                                 </div>
-                                                <div className="food__rating">
-                                                    <div className="list__food__prize">
-                                                        <span>$30</span>
-                                                    </div>
-                                                    <ul className="rating">
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li className="rating__opasity"><i className="zmdi zmdi-star"></i></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
+                                            )
+                                        }
 
-                                        <div className="single__food__list d-flex wow fadeInUp">
-                                            <div className="food__list__thumb">
-                                                <a href="menu-details.html">
-                                                    <img src="images/menu-list/1.jpg" alt="list food images" />
-                                                </a>
-                                            </div>
-                                            <div className="food__list__inner d-flex align-items-center justify-content-between">
-                                                <div className="food__list__details">
-                                                    <h2><a href="menu-details.html">Special Chocolety Toast</a></h2>
-                                                    <p>Lorem ipsum dolor sit aLorem ipsum dolor sit amet, consectetu adipis cing elit, sed do eiusmod tempor incididunt ut labore et dolmagna aliqua. enim ad minim veniam, quis nomagni dolores eos qnumquam.</p>
-                                                    <div className="list__btn">
-                                                        <a className="food__btn grey--btn theme--hover" href="menu-details.html">Order Now</a>
-                                                    </div>
-                                                </div>
-                                                <div className="food__rating">
-                                                    <div className="list__food__prize">
-                                                        <span>$30</span>
-                                                    </div>
-                                                    <ul className="rating">
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li><i className="zmdi zmdi-star"></i></li>
-                                                        <li className="rating__opasity"><i className="zmdi zmdi-star"></i></li>
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        {/* ENDS HERE ITEMS */}
                                     </div>
 
                                     <div className="food__list__tab__content tab-pane fade" id="nav-breakfast" role="tabpanel">
@@ -847,15 +769,15 @@ export default class Items extends Component {
                         <div className="row">
                             <div className="col-lg-12">
                                 <ul className="food__pagination d-flex justify-content-center align-items-center mt--130">
-                                    <li><a href="#"><i className="zmdi zmdi-chevron-left"></i></a></li>
-                                    <li><a href="#">1</a></li>
-                                    <li className="active"><a href="#">2</a></li>
-                                    <li><a href="#">3</a></li>
-                                    <li><a href="#">4</a></li>
-                                    <li><a href="#">5</a></li>
-                                    <li><a href="#">...</a></li>
-                                    <li><a href="#">7</a></li>
-                                    <li><a href="#"><i className="zmdi zmdi-chevron-right"></i></a></li>
+                                    {!isLoading && this.props.items.data.info.previous &&
+                                        (<li><Link to="#" onClick={() => this.nextItems(this.props.items.data.info.previous)}><i className="zmdi zmdi-chevron-left"></i></Link></li>)
+                                    }
+                                    {!isLoading && this.props.items.data.info.pages &&
+                                        Array(this.props.items.data.info.pages).fill(1).map((v, i) => (<li><Link to="#" onClick={() => this.jumpTo(this.props.items.data.info.current, i + 1)}>{i + 1}</Link></li>))
+                                    }
+                                    {!isLoading && this.props.items.data.info.next &&
+                                        (<li><Link to="#" onClick={() => this.prevItems(this.props.items.data.info.next)}><i className="zmdi zmdi-chevron-right"></i></Link></li>)
+                                    }
                                 </ul>
                             </div>
                         </div>
@@ -865,3 +787,11 @@ export default class Items extends Component {
         )
     }
 }
+
+const mapStateToProps = state => {
+    return {
+        items: state.items
+    }
+}
+
+export default connect(mapStateToProps)(Items)

@@ -12,7 +12,6 @@ export default class H2 extends Component {
                         <div className="row">
                             <div className="col-md-12 col-lg-12">
                                 <div className="section__title service__align--left">
-                                    <p>the process of our service</p>
                                     <h2 className="title__line">Search by food category</h2>
                                 </div>
                             </div>
@@ -20,11 +19,13 @@ export default class H2 extends Component {
                         <div className="food__category__wrapper mt--40">
                             <div className="row">
 
+                            {/* GET DATA FROM THE REDUX */}
+
                                 <div className="col-lg-4 col-md-6 col-sm-12">
                                     <div className="food__item foo">
                                         <div className="food__thumb">
                                             <a href="menu-details.html">
-                                                <img src={img1} alt="product" />
+                                                <img src='img/6609-3-large.jpg' className='img-fluid' alt="product" />
                                             </a>
                                         </div>
                                         <div className="food__title">
@@ -33,11 +34,13 @@ export default class H2 extends Component {
                                     </div>
                                 </div>
 
+                                {/* END GET */}
+
                                 <div className="col-lg-4 col-md-6 col-sm-12">
                                     <div className="food__item foo">
                                         <div className="food__thumb">
                                             <a href="menu-details.html">
-                                                <img src={img2} alt="product images" />
+                                                <img src='img/6609-3-large.jpg' className='img-fluid' alt="product images" />
                                             </a>
                                         </div>
                                         <div className="food__title">
@@ -50,7 +53,7 @@ export default class H2 extends Component {
                                     <div className="food__item foo">
                                         <div className="food__thumb">
                                             <a href="menu-details.html">
-                                                <img src={img3} alt="product images" />
+                                                <img src='img/6609-3-large.jpg' className='img-fluid' alt="product images" />
                                             </a>
                                         </div>
                                         <div className="food__title">

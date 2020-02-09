@@ -13,7 +13,6 @@ export default class H3 extends Component {
                         <div className="row">
                             <div className="col-md-12 col-lg-12">
                                 <div className="section__title service__align--left">
-                                    <p>the process of our service </p>
                                     <h2 className="title__line">Restaurant with Special Menu</h2>
                                 </div>
                             </div>
