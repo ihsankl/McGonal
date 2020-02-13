@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { login } from '../redux/action/login'
+import { login, register } from '../redux/action/login'
 import { compose } from "redux";
 import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'reactstrap';
 import { PulseLoader } from "react-spinners";
@@ -23,6 +23,7 @@ class Loginmodal extends Component {
             is_visible: '',
             username: '',
             password: '',
+            RepeatPassword: '',
             modal: false,
             isLoading: false,
         }
@@ -31,17 +32,23 @@ class Loginmodal extends Component {
     removeStates = () => {
         this.setState({
             username: '',
-            password: ''
+            password: '',
+            RepeatPassword: ''
         })
     }
 
     postData = async () => {
         this.setState({ isLoading: true })
-        await this.props.dispatch(login({
-            username: this.state.username,
-            password: this.state.password
-        }))
-        this.cekAuth()
+        try {
+            await this.props.dispatch(login({
+                username: this.state.username,
+                password: this.state.password
+            }))
+            this.cekAuth()
+        } catch (error) {
+            this.props.alert.error('Something went wrong!')
+            this.setState({ isLoading: false })
+        }
     }
 
     cekAuth = () => {
@@ -49,12 +56,49 @@ class Loginmodal extends Component {
             this.setState({ isLoading: false })
             this.props.alert.show('Login success!')
             this.removeStates()
+            this.props.closeLogin()
         } else {
             this.setState({ isLoading: false })
             this.props.alert.error('No user found!');
             this.removeStates()
         }
-        this.props.closeLogin()
+    }
+
+    handleRegisterInput = async => {
+        const { username, password, RepeatPassword } = this.state
+        const regex = /^[^\W_]+$/g;
+        if (!username.match(regex)) {
+            this.props.alert.error("Username is not valid!");
+        } else {
+            const data = {
+                username,
+                password
+            }
+            if (password !== RepeatPassword || password === '') {
+                this.props.alert.error('Password not match!');
+            } else {
+                this.setState({ isLoading: true })
+                this.handleRegister(data)
+            }
+        }
+    }
+
+    handleRegister = async (data) => {
+        try {
+            await this.props.dispatch(register(data));
+            if (this.props.register.msg === "Username has taken") {
+                this.props.alert.error('Username has taken!');
+                this.setState({ isLoading: false })
+                this.removeStates()
+            } else {
+                this.props.alert.show('Register Succeed!');
+                this.setState({ isLoading: false })
+                this.removeStates()
+            }
+        } catch (error) {
+            this.props.alert.error('Something Went Wrong!');
+            this.setState({ isLoading: false })
+        }
     }
 
     openModal = () => {
@@ -106,19 +150,17 @@ class Loginmodal extends Component {
                         <div className="accountbox__register tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
                             <form action="#">
                                 <div className="single-input">
-                                    <input className="cr-round--lg" type="text" placeholder="User name" />
+                                    <input value={this.state.username} onChange={(e) => this.setState({ username: e.target.value })} className="cr-round--lg" type="text" placeholder="User name" />
                                 </div>
                                 <div className="single-input">
-                                    <input className="cr-round--lg" type="email" placeholder="Email address" />
+                                    <input value={this.state.password} onChange={(e) => this.setState({ password: e.target.value })} className="cr-round--lg" type="password" placeholder="Password" />
                                 </div>
                                 <div className="single-input">
-                                    <input className="cr-round--lg" type="password" placeholder="Password" />
+                                    <input value={this.state.RepeatPassword} onChange={(e) => this.setState({ RepeatPassword: e.target.value })} className="cr-round--lg" type="password" placeholder="Confirm password" />
                                 </div>
                                 <div className="single-input">
-                                    <input className="cr-round--lg" type="password" placeholder="Confirm password" />
-                                </div>
-                                <div className="single-input">
-                                    <button type="submit" className="food__btn"><span>Sign Up</span></button>
+                                    {/* <button onClick={this.handleRegisterInput} type="submit" className="food__btn"><span>Sign Up</span></button> */}
+                                    <Button onClick={this.handleRegisterInput} className="food__btn">Sign Up</Button>
                                 </div>
                             </form>
                         </div>
@@ -147,7 +189,8 @@ class Loginmodal extends Component {
 
 const mapStateToProps = state => {
     return {
-        login: state.login
+        login: state.login,
+        register: state.register
     }
 }
 

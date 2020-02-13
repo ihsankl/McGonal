@@ -1,11 +1,43 @@
 import React, { Component } from 'react'
-import { TabPane, Row, Col, Card, CardBody, Modal, ModalHeader, ModalBody, ModalFooter, Button, Container, FormText, Form, Input } from 'reactstrap'
+import {
+    TabPane,
+    Row,
+    Col,
+    Card,
+    CardBody,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Button,
+    Container,
+    FormText,
+    Form,
+    Input,
+    CardDeck,
+    CardTitle,
+    CardText
+} from 'reactstrap'
 import { getCartsHistory } from '../redux/action/carts'
-import { postReview } from '../redux/action/reviews'
+import { postReview, getReview } from '../redux/action/reviews'
 import decode from 'jwt-decode'
 import { connect } from 'react-redux'
 import { Link } from 'react-router-dom'
 import StarRatings from 'react-star-ratings'
+// loading starter pack
+import { compose } from "redux";
+import { PulseLoader } from "react-spinners";
+import { css } from "@emotion/core";
+import { withAlert } from 'react-alert'
+import NumberFormat from 'react-number-format';
+import { APP_URL } from '../redux/config';
+import moment from 'moment'
+
+const override = css`
+  display: block;
+  margin: 0 auto;
+  border-color: red;
+`;
 
 
 class Purchases extends Component {
@@ -17,7 +49,8 @@ class Purchases extends Component {
             rating: 1,
             review: '',
             restaurant: '',
-            item: ''
+            item: '',
+            itemName: ''
         }
     }
 
@@ -25,11 +58,12 @@ class Purchases extends Component {
         this.getHistory()
     }
 
-    openModal = (restaurant, item) => {
+    openModal = (restaurant, item, itemName) => {
         this.setState({
             modal: true,
             restaurant,
-            item
+            item,
+            itemName
         })
     }
 
@@ -39,7 +73,8 @@ class Purchases extends Component {
             rating: 1,
             review: '',
             restaurant: '',
-            item: ''
+            item: '',
+            isLoading: false,
         })
 
     }
@@ -49,6 +84,7 @@ class Purchases extends Component {
     }
 
     postReview = async () => {
+        this.setState({ isLoading: true })
         const { review, item, rating } = this.state
         const { token } = this.props.login
         let decoded = ''
@@ -61,16 +97,27 @@ class Purchases extends Component {
             item,
             ratings: rating
         }
-        const post = await this.props.dispatch(postReview(data, token))
-        if (post) {
-            alert('success')
+        // const post = await this.props.dispatch(postReview(data, token))
+        // if (post) {
+        //     alert('success')
+        // this.closeModal()
+        // this.getHistory()
+        // }
+        try {
+            await this.props.dispatch(postReview(data, token))
+            await this.props.dispatch(getReview(decoded.id, token))
             this.closeModal()
             this.getHistory()
+            this.setState({ isLoading: false })
+        } catch (error) {
+            this.props.alert.error('Something went wrong!')
+            this.setState({ isLoading: false })
         }
 
     }
 
     getHistory = async () => {
+        this.setState({ isLoading: true })
         const { token } = this.props.login
         let decoded = ''
         if (token) {
@@ -78,9 +125,10 @@ class Purchases extends Component {
         }
         try {
             await this.props.dispatch(getCartsHistory(decoded.id, token))
-            alert('datanya ada')
+            this.setState({ isLoading: false })
         } catch (error) {
-            console.log(error)
+            this.props.alert.error('Something went wrong!')
+            this.setState({ isLoading: false })
         }
     }
 
@@ -89,47 +137,35 @@ class Purchases extends Component {
         const { modal } = this.state
         return (
             <TabPane tabId="1">
-                <Row>
-                    <Col sm="12">
-                        <h4 className='my-3'>{!this.props.cartshistory.isLoading && this.props.cartshistory ? 'Purchases History' : 'NO DATA RETRIEVED'}</h4>
-                        <Card>
-                            <CardBody>
-                                {!this.props.cartshistory.isLoading &&
-                                 this.props.cartshistory.data.map((v, i) => (
-                                    // LOOP GOES HERE
-                                    <Row key={i}>
-                                        <Col>
-                                            <div className="single__food__list d-flex wow fadeInUp" style={{ visibility: 'visible', animationName: 'fadeInUp' }}>
-                                                <div className="food__list__thumb">
-                                                    <Link to="#">
-                                                        <img src='img/6609-3-large.jpg' className='img-fluid' alt="list food images" />
-                                                    </Link>
-                                                </div>
-                                                <div className="food__list__inner d-flex align-items-center justify-content-between">
-                                                    <div className="food__list__details">
-                                                        <h2><Link to="#">{v.item}</Link></h2>
-                                                        <p>Restaurant: {v.restaurant}<br />
-                                                            QTY: {v.qty}<br />
-                                                            Price: {v.price}<br />
-                                                            Total: {v.total}
-
-                                                        </p>
-                                                        <div className="list__btn">
-                                                            <Link onClick={() => { this.openModal(v.restaurant, v.itemID); }} className="food__btn grey--btn theme--hover" to="#">Review</Link>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                <h4 className='my-3'>{!this.props.cartshistory.isLoading && this.props.cartshistory.data ? 'Purchases History' : 'No Purchases History'}</h4>
+                <CardDeck>
+                    {!this.props.cartshistory.isLoading &&
+                        this.props.cartshistory.data &&
+                        this.props.cartshistory.data.map((v, i) => (
+                            // LOOP GOES HERE
+                            //--------------------------------------------------------------------------------------------------------
+                            <Col key={i} md="6" sm="12" className="mb-4">
+                                <Card body style={{ height: '100%', overflow: 'hidden' }}>
+                                    <Row>
+                                        <Col md="6" sm="12">
+                                            {/* <CardTitle>{v.item}</CardTitle> */}
+                                            <CardTitle><h2><Link to="#">{v.item}</Link></h2></CardTitle>
+                                            <CardText className="mb-3">QTY: {`${v.qty}`}</CardText>
+                                            <CardText>Price: <NumberFormat value={v.price} displayType={'text'} thousandSeparator={true} prefix={'Rp.'} renderText={value => <span>{value}</span>} /></CardText>
+                                            <CardText>Total: <NumberFormat value={v.total} displayType={'text'} thousandSeparator={true} prefix={'Rp.'} renderText={value => <span>{value}</span>} /></CardText>
+                                        </Col>
+                                        <Col md="6" sm="12">
+                                            <img src={`${APP_URL}/images/${v.images}`} className='img-fluid' alt="list food images" />
                                         </Col>
                                     </Row>
-                                ))
+                                    <div className="mt-5" onClick={() => { this.openModal(v.restaurant, v.itemID, v.item); }} class="cartbox__buttons"><Link to="#" class="food__btn"><span>Write Review</span></Link></div>
+                                </Card>
+                            </Col>
+                        ))
 
-                                }
-                                {/* {this.props.cartshistory} */}
-                            </CardBody>
-                        </Card>
-                    </Col>
-                </Row>
+                    }
+                </CardDeck>
+                {/* {this.props.cartshistory} */}
                 <Modal isOpen={modal} toggle={this.closeModal} >
                     <ModalHeader toggle={this.closeModal}>Write Review</ModalHeader>
                     <ModalBody>
@@ -137,7 +173,7 @@ class Purchases extends Component {
                             <Row>
                                 <Col>
                                     Restaurant: {this.state.restaurant} <br />
-                                    Item: {this.state.item} <br />
+                                    Item: {this.state.itemName} <br />
                                     <Form onSubmit={(e) => e.preventDefault()}>
                                         <FormText color="muted">
                                             Write your review here.
@@ -157,9 +193,24 @@ class Purchases extends Component {
                         </Container>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="primary" onClick={this.postReview}>Post Review</Button>{' '}
+                        <Button color="danger" onClick={this.postReview}>Post Review</Button>{' '}
+                        {/* <div onClick={this.postReview} class="cartbox__buttons"><a class="food__btn" href="#"><span>Post Review</span></a></div> */}
                         <Button color="secondary" onClick={this.closeModal}>Cancel</Button>
                     </ModalFooter>
+                </Modal>
+                <Modal isOpen={this.state.isLoading}>
+                    <ModalHeader>Loading</ModalHeader>
+                    <ModalBody>
+                        <div className="sweet-loading text-center">
+                            <PulseLoader
+                                css={override}
+                                size={20}
+                                //size={"150px"} this also works
+                                color={"#D0021B"}
+                                loading={true}
+                            />
+                        </div>
+                    </ModalBody>
                 </Modal>
             </TabPane>
         )
@@ -173,4 +224,5 @@ const mapStateToProps = state => {
     }
 }
 
-export default connect(mapStateToProps)(Purchases)
+// export default connect(mapStateToProps)(Purchases)
+export default compose(connect(mapStateToProps), withAlert())(Purchases);

@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { getCategories } from '../redux/action/categories'
 import { connect } from 'react-redux'
+// import img from '../Resource/images/blog/instagram/1.jpg'
 
 
 class Sidebar extends Component {
@@ -13,7 +14,6 @@ class Sidebar extends Component {
     }
 
     componentDidMount() {
-        console.log('sidebar activated')
         this.getCategories()
     }
 
@@ -42,11 +42,6 @@ class Sidebar extends Component {
                     <div className="recent__post__wrap">
 
                         <div className="single__recent__post d-flex">
-                            <div className="recent__post__thumb">
-                                <a href="blog-details.html">
-                                    <img src="img/6609-3-large.jpg" className='img-fluid' alt="post images" />
-                                </a>
-                            </div>
                             <div className="recent__post__details">
                                 <span>February  13,  2018</span>
                                 <h4><a href="blog-details.html">Diffrent title gose here. This is demo title.</a></h4>
@@ -55,11 +50,6 @@ class Sidebar extends Component {
 
 
                         <div className="single__recent__post d-flex">
-                            <div className="recent__post__thumb">
-                                <a href="blog-details.html">
-                                    <img src="img/6609-3-large.jpg" className='img-fluid' alt="post images" />
-                                </a>
-                            </div>
                             <div className="recent__post__details">
                                 <span>February  13,  2018</span>
                                 <h4><a href="blog-details.html">Diffrent title gose here. This is demo title.</a></h4>
@@ -68,11 +58,6 @@ class Sidebar extends Component {
 
 
                         <div className="single__recent__post d-flex">
-                            <div className="recent__post__thumb">
-                                <a href="blog-details.html">
-                                    <img src="img/6609-3-large.jpg" className='img-fluid' alt="post images" />
-                                </a>
-                            </div>
                             <div className="recent__post__details">
                                 <span>February  13,  2018</span>
                                 <h4><a href="blog-details.html">Diffrent title gose here. This is demo title.</a></h4>
@@ -81,11 +66,6 @@ class Sidebar extends Component {
 
 
                         <div className="single__recent__post d-flex">
-                            <div className="recent__post__thumb">
-                                <a href="blog-details.html">
-                                    <img src="images/blog/sm-img/7.jpg" alt="post images" />
-                                </a>
-                            </div>
                             <div className="recent__post__details">
                                 <span>February  13,  2018</span>
                                 <h4><a href="blog-details.html">Diffrent title gose here. This is demo title.</a></h4>
@@ -121,12 +101,12 @@ class Sidebar extends Component {
                 <div className="sidebar__instagram mt--60">
                     <h4 className="side__title">Instagram</h4>
                     <ul className="instagram__list d-flex flex-wrap">
-                        <li><a href="#"><img src="images/blog/instagram/1.jpg" alt="instagram images" /></a></li>
-                        <li><a href="#"><img src="images/blog/instagram/2.jpg" alt="instagram images" /></a></li>
-                        <li><a href="#"><img src="images/blog/instagram/3.jpg" alt="instagram images" /></a></li>
-                        <li><a href="#"><img src="images/blog/instagram/4.jpg" alt="instagram images" /></a></li>
-                        <li><a href="#"><img src="images/blog/instagram/5.jpg" alt="instagram images" /></a></li>
-                        <li><a href="#"><img src="images/blog/instagram/6.jpg" alt="instagram images" /></a></li>
+                        <li><a href="#"><img src={require('../Resource/images/blog/instagram/1.jpg')} alt="instagram images" /></a></li>
+                        <li><a href="#"><img src={require('../Resource/images/blog/instagram/2.jpg')} alt="instagram images" /></a></li>
+                        <li><a href="#"><img src={require('../Resource/images/blog/instagram/3.jpg')} alt="instagram images" /></a></li>
+                        <li><a href="#"><img src={require('../Resource/images/blog/instagram/4.jpg')} alt="instagram images" /></a></li>
+                        <li><a href="#"><img src={require('../Resource/images/blog/instagram/5.jpg')} alt="instagram images" /></a></li>
+                        <li><a href="#"><img src={require('../Resource/images/blog/instagram/6.jpg')} alt="instagram images" /></a></li>
                     </ul>
                 </div>
             </div>

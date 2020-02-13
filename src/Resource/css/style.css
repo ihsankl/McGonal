@@ -3285,6 +3285,8 @@ div.slide__pizza img {
       .special__food__menu .fd__tab__content .single__tab__panel .tab__content__wrap .single__tab__content .food__menu .food__menu__thumb {
         margin-right: 20px;
         max-width: 100px;
+        max-height: 100px;
+        overflow: hidden;
         flex-basis: 20%; }
       .special__food__menu .fd__tab__content .single__tab__panel .tab__content__wrap .single__tab__content .food__menu .food__menu__details {
         flex-basis: 80%; }
@@ -5318,7 +5320,8 @@ div.slide__pizza img {
         -o-transition: 0.5s;
         transition: 0.5s; }
       .single__food__list .food__list__thumb a img {
-        width: 100%; }
+        width: 100%;
+       }
   .single__food__list .food__list__inner {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding-left: 40px; }

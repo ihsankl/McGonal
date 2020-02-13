@@ -10,6 +10,13 @@ export const login = (data) => {
     }
 }
 
+export const register = (data) => {
+    return {
+        type: 'REGISTER',
+        payload: axios.post(`${APP_URL}/user/customer`, qs.stringify(data))
+    }
+}
+
 export const logOut = (token) => {
     // const headers = { Authorization: `Bearer ${token}` }
     return {

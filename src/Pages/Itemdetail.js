@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { getDetailItem } from '../redux/action/items'
+import { getReview } from '../redux/action/reviews'
 import { putToCarts } from '../redux/action/carts'
 import img1 from '../Resource/images/banner/details/1.jpg'
 import img2 from '../Resource/images/beef/2.jpg'
@@ -25,6 +26,8 @@ import { PulseLoader } from "react-spinners";
 import { css } from "@emotion/core";
 import { withAlert } from 'react-alert'
 import NumberFormat from 'react-number-format';
+import { APP_URL } from '../redux/config';
+import moment from 'moment'
 
 const override = css`
   display: block;
@@ -50,20 +53,27 @@ class Itemdetail extends Component {
 
     componentDidMount() {
         this.getItems()
+        window.scrollTo(0, 0)
     }
 
     getItems = async () => {
-        this.setState({ isLoading: true })
+        await this.setState({ isLoading: true })
         const item_id = this.props.match.params.id
-        await this.props.dispatch(getDetailItem(item_id))
-        this.setState({
-            items: this.props.items.data.data,
-            reviews: this.props.items.data.reviews,
-            showcase: this.props.items.data.showcase,
-            isItemLoading: this.props.items.isLoading
-        })
-        this.setState({ isLoading: false })
+        try {
+            await this.props.dispatch(getDetailItem(item_id))
+            await this.setState({
+                items: this.props.detailitem.data.data,
+                reviews: this.props.detailitem.data.reviews,
+                showcase: this.props.detailitem.data.showcase,
+                isItemLoading: this.props.detailitem.isLoading
+            })
+            await this.setState({ isLoading: false })
+        } catch (error) {
+            await this.setState({ isLoading: false })
+            this.props.alert.error('Something went wrong!')
+        }
     }
+
 
     handlePut = async (name, item, price) => {
         this.setState({ isLoading: true })
@@ -72,24 +82,30 @@ class Itemdetail extends Component {
         if (token) {
             decoded = decode(token)
         }
-        const data = {
-            restaurant: name,
-            item: item,
-            user: decoded.id,
-            qty: this.state.qty,
-            price: price,
-            total: Number(this.state.qty) * Number(price),
-            bought: 'false'
-        }
+        const regex = /(?<=\s|^)\d+(?=\s|$)/g
+        if (!this.state.qty.match(regex)) {
+            this.setState({ isLoading: false })
+            this.props.alert.error('Number input not valid!')
+        } else {
+            const data = {
+                restaurant: name,
+                item: item,
+                user: decoded.id,
+                qty: this.state.qty,
+                price: price,
+                total: Number(this.state.qty) * Number(price),
+                bought: 'false'
+            }
 
-        try {
-            await this.props.dispatch(putToCarts(data, token))
-            this.setState({ isLoading: false })
-            this.props.alert.show('Success!')
-            this.getCarts(decoded.id, token)
-        } catch (error) {
-            this.setState({ isLoading: false })
-            this.props.alert.error('Error')
+            try {
+                await this.props.dispatch(putToCarts(data, token))
+                this.setState({ isLoading: false })
+                this.props.alert.show('Success!')
+                this.getCarts(decoded.id, token)
+            } catch (error) {
+                this.setState({ isLoading: false })
+                this.props.alert.error('Error')
+            }
         }
     }
 
@@ -136,7 +152,7 @@ class Itemdetail extends Component {
                                         <div className="food__menu__container">
                                             <div className="food__menu__inner d-flex flex-wrap flex-md-nowrap flex-lg-nowrap">
                                                 <div className="food__menu__thumb">
-                                                    <img src='../img/6609-3-large.jpg' className='img-fluid' alt="not found" />
+                                                    <img src={`${APP_URL}/images/${this.props.detailitem.data.data[0].images}`} className='img-fluid' alt="not found" />
                                                 </div>
                                                 <div className="food__menu__details">
                                                     <div className="food__menu__content">
@@ -154,18 +170,20 @@ class Itemdetail extends Component {
                                                         <div className="product-action-wrap">
                                                             <div className="prodict-statas"><span>Category : {v.category}</span></div>
                                                             <div className="product-quantity">
-                                                                <Form onSubmit={(e) => e.preventDefault()} id="myform">
-                                                                    <div className="product-quantity">
-                                                                        <Row className='my-3'>
-                                                                            <Col>
-                                                                                <Input bsSize="lg" type='number' value={this.state.qty} onChange={(e) => this.setState({ qty: e.target.value })} min={0} />
-                                                                            </Col>
-                                                                            <Col>
-                                                                                <Button onClick={() => this.handlePut(v.name, v.item, v.price)} className='food__btn btn-block'>Add To Carts</Button>
-                                                                            </Col>
-                                                                        </Row>
-                                                                    </div>
-                                                                </Form>
+                                                                {this.props.login.token &&
+                                                                    <Form onSubmit={(e) => e.preventDefault()} id="myform">
+                                                                        <div className="product-quantity">
+                                                                            <Row className='my-3'>
+                                                                                <Col sm="6" md="6">
+                                                                                    <Input bsSize="lg" type='number' value={this.state.qty} onChange={(e) => this.setState({ qty: e.target.value })} min={0} />
+                                                                                </Col>
+                                                                                <Col sm="6" md="6">
+                                                                                    <Button onClick={() => this.handlePut(v.name, v.item, v.price)} className='food__btn btn-block'>Add To Carts</Button>
+                                                                                </Col>
+                                                                            </Row>
+                                                                        </div>
+                                                                    </Form>
+                                                                }
                                                             </div>
                                                         </div>
                                                     </div>
@@ -183,49 +201,31 @@ class Itemdetail extends Component {
                                                     <div className="single__dec__content fade show active" id="nav-all" role="tabpanel">
                                                         <p>{v.description}</p>
                                                     </div>
-
+                                                    {/* REVIEW STARTS HERE */}
                                                     <div className="single__dec__content fade" id="nav-breakfast" role="tabpanel">
                                                         <div className="review__wrapper">
-
-                                                            <div className="single__review d-flex">
-                                                                <div className="review__thumb">
-                                                                    <img src="images/testimonial/rev/1.jpg" alt="review images" />
-                                                                </div>
-                                                                <div className="review__details">
-                                                                    <h3>Robart Hanson</h3>
-                                                                    <div className="rev__meta d-flex justify-content-between">
-                                                                        <span>Admin - February  13,  2018</span>
-                                                                        <ul className="rating">
-                                                                            {/* RATINGS FROM REVIEW GOES HERE */}
-
-                                                                        </ul>
+                                                            {!isItemLoading && this.props.detailitem.data.reviews && this.props.detailitem.data.reviews.map((v1, i1) => (
+                                                                <div className="single__review d-flex">
+                                                                    <div className="review__details">
+                                                                        <h3>{v1.username}</h3>
+                                                                        <div className="rev__meta d-flex justify-content-between">
+                                                                            <span>{moment(v1.updated_on).format('MMMM DD, YYYY')}</span> {/* February  13,  2018 */}
+                                                                            <ul className="rating">
+                                                                                {
+                                                                                    Array((Math.round(v1.ratings))).fill(
+                                                                                        <li ><i className="fa fa-star" aria-hidden="true"></i></li>
+                                                                                    )
+                                                                                }
+                                                                            </ul>
+                                                                        </div>
+                                                                        <p>{v1.review}</p>
                                                                     </div>
-                                                                    <p>Lorem ipsum dolor sit amet, consectetur adipis icing elit, sed tdomino eiusd tempor incididunt ut labore et dolore magna aliqua. Ut e veniam, quis nostrud exercitation ullamco laboris nisi ut aliquiconsequat.</p>
                                                                 </div>
-                                                            </div>
-
-                                                            <div className="single__review d-flex">
-                                                                <div className="review__thumb">
-                                                                    <img src="images/testimonial/rev/2.jpg" alt="review images" />
-                                                                </div>
-                                                                <div className="review__details">
-                                                                    <h3>Robart Hanson</h3>
-                                                                    <div className="rev__meta d-flex justify-content-between">
-                                                                        <span>Admin - February  13,  2018</span>
-                                                                        <ul className="rating">
-                                                                            <li><i className="fa fa-star" aria-hidden="true"></i></li>
-                                                                            <li><i className="fa fa-star" aria-hidden="true"></i></li>
-                                                                            <li><i className="fa fa-star" aria-hidden="true"></i></li>
-                                                                            <li><i className="fa fa-star" aria-hidden="true"></i></li>
-                                                                            <li><i className="fa fa-star" aria-hidden="true"></i></li>
-                                                                        </ul>
-                                                                    </div>
-                                                                    <p>Lorem ipsum dolor sit amet, consectetur adipis icing eltempor incididunt labore et dolore magna aliqua. Ut enim adm veniam, quis nostrud exercitation.</p>
-                                                                </div>
-                                                            </div>
-
+                                                            ))
+                                                            }
                                                         </div>
                                                     </div>
+                                                    {/* REVIEW ENDS HERE */}
 
                                                 </div>
 
@@ -247,8 +247,8 @@ class Itemdetail extends Component {
                                                 <div key={ii} className="col-lg-4 col-md-6 col-sm-12">
                                                     <div className="beef_product">
                                                         <div className="beef__thumb">
-                                                            <Link to='#'>
-                                                                <img src={img2} alt="beef images" />
+                                                            <Link onClick={()=> this.getItems()} to={`/itemdetail/${va.itemID}`}>
+                                                                <img src={`${APP_URL}/images/${va.images}`} alt="beef images" />
                                                             </Link>
                                                         </div>
                                                         <div className="beef__hover__info">
@@ -596,9 +596,11 @@ class Itemdetail extends Component {
 const mapStateToProps = state => {
     return {
         items: state.items,
+        detailitem: state.detailitem,
         categories: state.categories,
         login: state.login,
-        carts: state.carts
+        carts: state.carts,
+        reviews: state.reviews,
     }
 }
 

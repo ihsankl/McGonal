@@ -1,6 +1,6 @@
 import axios from 'axios'
 import qs from 'qs'
-import {APP_URL} from '../config'
+import { APP_URL } from '../config'
 
 // FAKE TOKEN
 
@@ -37,14 +37,14 @@ export const editReview = (id, data, token) => {
     const headers = { Authorization: `Bearer ${token}` }
     return {
         type: 'PUT_REVIEWS',
-        payload: axios.put(`${url}/${id}`, { headers: headers }, qs.stringify(data))
+        payload: axios.put(`${url}/${id}`, qs.stringify(data), { headers: headers })
     }
 }
 
-export const deleteReview = (id, token) => {
+export const deleteReview = (reviewId, token) => {
     const headers = { Authorization: `Bearer ${token}` }
     return {
         type: 'DELETE_REVIEWS',
-        payload: axios.delete(`${url}/${id}`, { headers: headers })
+        payload: axios.delete(`${url}/${reviewId}`, { headers: headers })
     }
 }

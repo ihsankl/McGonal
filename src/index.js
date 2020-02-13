@@ -15,13 +15,13 @@ const { store, persistor } = storage()
 
 const options = {
     timeout: 5000,
-    position: positions.MIDDLE
+    position: positions.TOP_CENTER
 };
 
 ReactDOM.render(
-    <Provider store={store} {...options}>
+    <Provider store={store}>
         <PersistGate persistor={persistor}>
-            <AlertProvider template={AlertTemplate}>
+            <AlertProvider template={AlertTemplate} {...options}>
                 <App />
             </AlertProvider>
         </PersistGate>

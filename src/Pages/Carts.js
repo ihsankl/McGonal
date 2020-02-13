@@ -18,6 +18,7 @@ import { PulseLoader } from "react-spinners";
 import { css } from "@emotion/core";
 import { withAlert } from 'react-alert'
 import NumberFormat from 'react-number-format';
+import { APP_URL } from '../redux/config';
 
 const override = css`
   display: block;
@@ -46,6 +47,7 @@ class Carts extends Component {
         }
 
         this.getCarts(decoded.id, token)
+        window.scrollTo(0, 0)
     }
 
     getCarts = async (user_id, token) => {
@@ -63,19 +65,26 @@ class Carts extends Component {
     }
 
     removeItem = async (id) => {
+        this.setState({ isLoading: true })
         const { token } = this.props.login
         let decoded = ''
         if (token) {
             decoded = decode(token)
         }
-        await this.props.dispatch(removeItem(id, token))
-
-        alert('item removed')
-        this.getCarts(decoded.id, token)
-        this.counts(this.props.carts)
+        try {
+            await this.props.dispatch(removeItem(id, token))
+            this.setState({ isLoading: false })
+            this.getCarts(decoded.id, token)
+            this.counts(this.props.carts)
+            this.props.alert.show('Item removed!')
+        } catch (error) {
+            this.setState({ isLoading: false })
+            this.props.alert.error('Something went wrong!')
+        }
     }
 
     checkOut = async () => {
+        this.setState({ isLoading: true })
         const { token } = this.props.login
         let decoded = ''
         const data = {
@@ -85,10 +94,16 @@ class Carts extends Component {
             decoded = decode(token)
         }
 
-        await this.props.dispatch(checkout(decoded.id, data, token))
-        alert('thx for purchasing')
-        this.getCarts(decoded.id, token)
-        this.counts(this.props.carts)
+        try {
+            await this.props.dispatch(checkout(decoded.id, data, token))
+            this.setState({ isLoading: false })
+            this.props.alert.show('Thanks for purchasing!')
+            this.getCarts(decoded.id, token)
+            this.counts(this.props.carts)
+        } catch (error) {
+            this.setState({ isLoading: false })
+            this.props.alert.error('Something went wrong!')
+        }
     }
 
     counts = (carts) => {
@@ -152,10 +167,11 @@ class Carts extends Component {
                                                     (carts.data.map((v, i) => (
                                                         (
                                                             <tr key={i}>
-                                                                <td className="product-thumbnail"><a href="#"><img src='img/6609-3-large.jpg' className='img-fluid' alt="product img" /></a></td>
+                                                                <td className="product-thumbnail"><a href="#">                                                    <img src={`${APP_URL}/images/${this.props.carts.data[i].images}`} className='img-fluid' alt="not found" />
+                                                                </a></td>
                                                                 <td className="product-name"><a href="#">{v.item}</a></td>
                                                                 <td className="product-price"><span className="amount">
-                                                                <NumberFormat value={v.price} displayType={'text'} thousandSeparator={true} prefix={'Rp.'} renderText={value => <span>{value}</span>} /></span></td>
+                                                                    <NumberFormat value={v.price} displayType={'text'} thousandSeparator={true} prefix={'Rp.'} renderText={value => <span>{value}</span>} /></span></td>
                                                                 <td className="product-quantity"><input type="number" readOnly value={v.qty} /></td>
                                                                 <td className="product-subtotal"><NumberFormat value={v.total} displayType={'text'} thousandSeparator={true} prefix={'Rp.'} renderText={value => <span>{value}</span>} /></td>
                                                                 <td className="product-remove"><Link onClick={() => this.removeItem(v.id)} to="#">X</Link></td>
@@ -165,8 +181,7 @@ class Carts extends Component {
                                                     :
                                                     (
                                                         <tr>
-                                                            <td className="product-thumbnail"><a href="#"><img src="images/cart/1.jpg" alt="product img" /></a></td>
-                                                            <td className="product-name"><a href="#">NO DATA!!</a></td>
+                                                            <td colSpan="6" className="product-name"><a href="#">Seems like you don't have items in your cart</a></td>
                                                         </tr>
                                                     )
 
@@ -177,11 +192,13 @@ class Carts extends Component {
                                         </table>
                                     </div>
                                 </form>
-                                <div className="cartbox__btn">
-                                    <ul className="cart__btn__list d-flex flex-wrap flex-md-nowrap flex-lg-nowrap justify-content-between">
-                                        <li><Link onClick={this.checkOut} to="#">Check Out</Link></li>
-                                    </ul>
-                                </div>
+                                {!isLoading && carts.data &&
+                                    <div className="cartbox__btn">
+                                        <ul className="cart__btn__list d-flex flex-wrap flex-md-nowrap flex-lg-nowrap justify-content-between">
+                                            <li><Link onClick={this.checkOut} to="#">Check Out</Link></li>
+                                        </ul>
+                                    </div>
+                                }
                             </div>
                         </div>
                         <div className="row">

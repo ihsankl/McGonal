@@ -17,10 +17,6 @@ class History extends Component {
         }
     }
 
-    componentDidMount() {
-    }
-    
-
     toggle = (tab) => {
         this.setState({ activeTab: tab })
 

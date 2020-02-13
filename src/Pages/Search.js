@@ -8,7 +8,6 @@ import {
     Form,
     Modal,
     ModalBody,
-    ModalFooter,
     ModalHeader,
     Label,
     InputGroup,
@@ -25,7 +24,7 @@ import { PulseLoader } from "react-spinners";
 import { css } from "@emotion/core";
 import { withAlert } from 'react-alert'
 import NumberFormat from 'react-number-format';
-import {APP_URL} from '../redux/config';
+import { APP_URL } from '../redux/config';
 
 const override = css`
   display: block;
@@ -45,32 +44,49 @@ class Search extends Component {
             name: '',
             rate: '',
             sort: '',
-            isLoading: false
+            isLoading: false,
+            activePage: ''
         }
     }
 
     componentDidMount() {
         this.getCategories()
         this.getItems()
+        window.scrollTo(0, 0)
     }
 
     getItems = async () => {
         this.setState({ isLoading: true })
-        await this.props.dispatch(getItems())
-        this.setState({ isLoading: this.props.items.isLoading })
+        try {
+            await this.props.dispatch(getItems())
+            this.setState({ isLoading: false })
+        } catch (error) {
+            this.props.alert.error('Something went wrong!')
+            this.setState({ isLoading: this.props.items.isLoading })
+        }
     }
 
     nextItems = async (nextURL) => {
         this.setState({ isLoading: true })
-        await this.props.dispatch(nextItems(nextURL))
-        this.setState({ isLoading: false })
+        try {
+            await this.props.dispatch(nextItems(nextURL))
+            this.setState({ isLoading: false })
+        } catch (error) {
+            this.props.alert.error('Something went wrong!')
+            this.setState({ isLoading: false })
+        }
 
     }
 
     prevItems = async (nextURL) => {
         this.setState({ isLoading: true })
-        await this.props.dispatch(nextItems(nextURL))
-        this.setState({ isLoading: false })
+        try {
+            await this.props.dispatch(nextItems(nextURL))
+            this.setState({ isLoading: false })
+        } catch (error) {
+            this.props.alert.error('Something went wrong!')
+            this.setState({ isLoading: false })
+        }
     }
 
     jumpTo = async (nextURL, page) => {
@@ -78,13 +94,23 @@ class Search extends Component {
         const regex = /page=([\d.]*\d+)/g
         const url = nextURL.match(regex)
         if (!url) {
-            console.log(`${nextURL}page=${page}`)
-            await this.props.dispatch(nextItems(`${nextURL}page=${page}`))
-            this.setState({ isLoading: false })
+            try {
+                await this.props.dispatch(nextItems(`${nextURL}page=${page}`))
+                this.setState({ isLoading: false })
+            } catch (error) {
+                this.props.alert.error('Something went wrong!')
+                this.setState({ isLoading: false })
+            }
         } else {
             const newURL = (nextURL.replace(regex, `page=${page}`))
-            await this.props.dispatch(nextItems(newURL))
-            this.setState({ isLoading: false })
+            try {
+                await this.props.dispatch(nextItems(newURL))
+                this.setState({ isLoading: false })
+            } catch (error) {
+                this.props.alert.error('Something went wrong!')
+                this.setState({ isLoading: false })
+            }
+
         }
 
     }
@@ -92,8 +118,13 @@ class Search extends Component {
 
     getCategories = async () => {
         this.setState({ isLoading: true })
-        await this.props.dispatch(getCategories())
-        this.setState({ isLoading: false })
+        try {
+            await this.props.dispatch(getCategories())
+            this.setState({ isLoading: false })
+        } catch (error) {
+            this.props.alert.error('Something went wrong!')
+            this.setState({ isLoading: false })
+        }
     }
 
     search = async () => {
@@ -185,7 +216,7 @@ class Search extends Component {
                                                     <option value='category'>Category</option>
                                                 </Input>
                                                 <InputGroupAddon addonType="prepend">
-                                                    <Button id="btn" onClick={this.search} color='danger' className='btn-block'><GoSearch /> Search</Button>
+                                                    <Button id="btn" onClick={this.search} color='danger' className='btn-block'><GoSearch /> Go</Button>
                                                 </InputGroupAddon>
                                             </InputGroup>
                                         </FormGroup>
@@ -200,68 +231,66 @@ class Search extends Component {
                         {/* SEARCH BOX ENDED */}
 
                         {/* START LOOP HERE */}
-                        {!isLoading && this.props.items.data.data ?
-                            (this.props.items.data.data.map((v, i) => (
-                                <Row>
-                                    <Col>
-                                        <div className="single__food__list d-flex wow fadeInUp" style={{ visibility: 'visible', animationName: 'fadeInUp' }}>
-                                            <div className="food__list__thumb">
-                                                <Link to={`itemdetail/${v.id}`} >
-                                                    <img src="img/6609-3-large.jpg" className='img-fluid' alt="list food images" />
-                                                </Link>
-                                            </div>
-                                            <div className="food__list__inner d-flex align-items-center justify-content-between">
-                                                <div className="food__list__details">
-                                                    <h2><Link to={`itemdetail/${v.id}`}>{`${v.item}`}</Link></h2>
-                                                    <p>{v.description}</p>
-                                                    <div className="list__btn">
-                                                        <Link className="food__btn grey--btn theme--hover" to={`itemdetail/${v.id}`}>Order Now</Link>
+                        {!isLoading && this.props.items.data.data &&
+                            <>
+                                {(this.props.items.data.data.map((v, i) => (
+                                    <Row>
+                                        <Col>
+                                            <div className="single__food__list d-flex wow fadeInUp" style={{ visibility: 'visible', animationName: 'fadeInUp' }}>
+                                                <div className="food__list__thumb">
+                                                    <Link to={`itemdetail/${v.id}`} >
+                                                        <img src={`${APP_URL}/images/${v.images}`} className='img-fluid' alt="list food images" />
+                                                    </Link>
+                                                </div>
+                                                <div className="food__list__inner d-flex align-items-center justify-content-between">
+                                                    <div className="food__list__details">
+                                                        <h2><Link to={`itemdetail/${v.id}`}>{`${v.item}`}</Link></h2>
+                                                        <p>{v.description}</p>
+                                                        <div className="list__btn">
+                                                            <Link className="food__btn grey--btn theme--hover" to={`itemdetail/${v.id}`}>Order Now</Link>
+                                                        </div>
+                                                    </div>
+                                                    <div className="food__rating">
+                                                        <div className="list__food__prize">
+                                                            <NumberFormat value={v.price} displayType={'text'} thousandSeparator={true} prefix={'Rp.'} renderText={value => <span>{value}</span>} />
+                                                            {/* <span>{`${v.price}`}</span> */}
+                                                        </div>
+                                                        <ul className="rating">
+                                                            {
+                                                                Array((Math.round(v.total_ratings))).fill(
+                                                                    <li><i className="zmdi zmdi-star"></i></li>
+                                                                )
+                                                            }
+                                                            {
+                                                                Array(5 - (Math.round(v.total_ratings))).fill(
+                                                                    <li className="rating__opasity"><i className="zmdi zmdi-star"></i></li>
+                                                                )
+                                                            }
+                                                        </ul>
                                                     </div>
                                                 </div>
-                                                <div className="food__rating">
-                                                    <div className="list__food__prize">
-                                                    <NumberFormat value={v.price} displayType={'text'} thousandSeparator={true} prefix={'Rp.'} renderText={value => <span>{value}</span>} />
-                                                        {/* <span>{`${v.price}`}</span> */}
-                                                    </div>
-                                                    <ul className="rating">
-                                                        {
-                                                            Array((Math.round(v.total_ratings))).fill(
-                                                                <li><i className="zmdi zmdi-star"></i></li>
-                                                            )
-                                                        }
-                                                        {
-                                                            Array(5 - (Math.round(v.total_ratings))).fill(
-                                                                <li className="rating__opasity"><i className="zmdi zmdi-star"></i></li>
-                                                            )
-                                                        }
-                                                    </ul>
-                                                </div>
                                             </div>
-                                        </div>
-                                    </Col>
-                                </Row>
-
-                            ))
-
-
-                            ) : ''
-
+                                        </Col>
+                                    </Row>
+                                ))
+                                )}
+                                < div className="row">
+                                    <div className="col-lg-12">
+                                        <ul className="food__pagination d-flex justify-content-center align-items-center mt--130">
+                                            {!this.props.items.isLoading && this.props.items.data.info.previous &&
+                                                (<li><Link to="#" onClick={() => this.nextItems(this.props.items.data.info.previous)}><i className="zmdi zmdi-chevron-left"></i></Link></li>)
+                                            }
+                                            {!this.props.items.isLoading && this.props.items.data.info &&
+                                                Array(this.props.items.data.info.pages).fill(1).map((v, i) => (<li className=""><Link to="#" onClick={() => this.jumpTo(this.props.items.data.info.current, i + 1)}>{i + 1}</Link></li>))
+                                            }
+                                            {!this.props.items.isLoading && this.props.items.data.info.next &&
+                                                (<li><Link to="#" onClick={() => this.prevItems(this.props.items.data.info.next)}><i className="zmdi zmdi-chevron-right"></i></Link></li>)
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            </>
                         }
-                        <div className="row">
-                            <div className="col-lg-12">
-                                <ul className="food__pagination d-flex justify-content-center align-items-center mt--130">
-                                    {!isLoading && this.props.items.data.info &&
-                                        (<li><Link to="#" onClick={() => this.nextItems(this.props.items.data.info.previous)}><i className="zmdi zmdi-chevron-left"></i></Link></li>)
-                                    }
-                                    {!isLoading && this.props.items.data.info &&
-                                        Array(this.props.items.data.info.pages).fill(1).map((v, i) => (<li><Link to="#" onClick={() => this.jumpTo(this.props.items.data.info.current, i + 1)}>{i + 1}</Link></li>))
-                                    }
-                                    {!isLoading && this.props.items.data.info &&
-                                        (<li><Link to="#" onClick={() => this.prevItems(this.props.items.data.info.next)}><i className="zmdi zmdi-chevron-right"></i></Link></li>)
-                                    }
-                                </ul>
-                            </div>
-                        </div>
                         {/* LOOP ENDS HERE  */}
                     </div>
                     <Modal isOpen={this.state.isLoading}>
@@ -279,9 +308,6 @@ class Search extends Component {
                         </ModalBody>
                     </Modal>
                 </section >
-
-
-
             </span >
         )
     }
@@ -290,7 +316,7 @@ class Search extends Component {
 const mapStateToProps = state => {
     return {
         categories: state.categories,
-        items: state.items
+        items: state.items,
     }
 }
 

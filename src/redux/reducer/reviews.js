@@ -10,76 +10,69 @@ const reviews = (state = initialState, action) => {
         case 'GET_REVIEWS_PENDING':
             return {
                 ...state,
-                data:[],
+                data: [],
                 isLoading: true,
                 isError: false,
+                isSuccess: true
             }
         case 'GET_REVIEWS_REJECTED':
             return {
                 ...state,
                 isLoading: false,
-                isError: true
+                isError: true,
+                isSuccess: true
             }
         case 'GET_REVIEWS_FULFILLED':
             return {
                 ...state,
-                data: [{a:'tes'},{b:'tes2'}],
-                isLoading: false,
-                isError: false
-            }
-        case 'GET_DETAIL_REVIEW_PENDING':
-            return {
-                ...state,
-                isLoading: true,
-                isError: false,
-            }
-        case 'GET_DETAIL_REVIEW_REJECTED':
-            return {
-                ...state,
-                isLoading: false,
-                isError: true
-            }
-        case 'GET_DETAIL_REVIEW_FULFILLED':
-            return {
                 data: action.payload.data.data,
                 isLoading: false,
-                isError: false
+                isError: false,
+                isSuccess: true
+
             }
         case 'POST_REVIEWS_PENDING':
             return {
                 ...state,
                 isLoading: true,
                 isError: false,
+                isSuccess: true
             }
         case 'POST_REVIEWS_REJECTED':
             return {
                 ...state,
                 isLoading: false,
-                isError: true
+                isError: true,
+                isSuccess: true
             }
         case 'POST_REVIEWS_FULFILLED':
             return {
                 data: action.payload.data.data,
                 isLoading: false,
-                isError: false
+                isError: false,
+                isSuccess: true
             }
         case 'DELETE_REVIEWS_PENDING':
             return {
                 ...state,
                 isLoading: true,
                 isError: false,
+                isSuccess: true
             }
         case 'DELETE_REVIEWS_REJECTED':
             return {
                 ...state,
                 isLoading: false,
-                isError: true
+                isError: true,
+                isSuccess: true
+
             }
         case 'DELETE_REVIEWS_FULFILLED':
             return {
                 data: action.payload.data.data,
                 isLoading: false,
-                isError: false
+                isError: false,
+                isSuccess: true
             }
         default:
             return state
