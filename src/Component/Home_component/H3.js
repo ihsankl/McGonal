@@ -66,7 +66,7 @@ class H3 extends Component {
                                                 <div className="tab__content__wrap">
                                                     <div className="single__tab__content">
                                                         {/* ITEMS STARTS */}
-                                                        {!this.props.items.isLoading && this.props.items.data &&
+                                                        {!this.props.items.isLoading && this.props.items.data.data &&
                                                             this.props.items.data.data.map((v1, i) => (
                                                                 i % 2 === 1 ?
                                                                     <div className="food__menu">
@@ -100,7 +100,7 @@ class H3 extends Component {
 
                                                     <div className="single__tab__content">
                                                         {/* ITEMS STARTS */}
-                                                        {!this.props.items.isLoading && this.props.items.data &&
+                                                        {!this.props.items.isLoading && this.props.items.data.data &&
                                                             this.props.items.data.data.map((v, i) => (
                                                                 i % 2 === 0 ?
                                                                     <div className="food__menu">
